@@ -9,9 +9,11 @@ from datetime import date, datetime, timedelta, timezone
 __all__ = [
     "business_days",
     "date_range",
+    "end_of",
+    "is_weekend",
+    "next_business_day",
     "relative",
     "start_of",
-    "end_of",
 ]
 
 _UTC = timezone.utc
@@ -140,6 +142,44 @@ def start_of(unit: str, dt: datetime | None = None) -> datetime:
         case _:
             msg = f"Unsupported unit: {unit!r}. Use 'day', 'week', 'month', or 'year'."
             raise ValueError(msg)
+
+
+def is_weekend(dt: date | datetime | None = None) -> bool:
+    """Check if a date falls on a weekend (Saturday or Sunday).
+
+    Args:
+        dt: The date to check. Defaults to today.
+
+    Returns:
+        True if the date is a Saturday or Sunday.
+    """
+    d = dt or date.today()
+    if isinstance(d, datetime):
+        d = d.date()
+    return d.weekday() >= 5
+
+
+def next_business_day(
+    dt: date | datetime | None = None,
+    holidays: list[date] | None = None,
+) -> date:
+    """Return the next business day (Mon-Fri, excluding holidays).
+
+    Args:
+        dt: The reference date. Defaults to today.
+        holidays: Optional list of dates to skip.
+
+    Returns:
+        The next date that is a weekday and not in the holiday list.
+    """
+    d = dt or date.today()
+    if isinstance(d, datetime):
+        d = d.date()
+    holiday_set = set(holidays) if holidays else set()
+    candidate = d + timedelta(days=1)
+    while candidate.weekday() >= 5 or candidate in holiday_set:
+        candidate += timedelta(days=1)
+    return candidate
 
 
 def end_of(unit: str, dt: datetime | None = None) -> datetime:
