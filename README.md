@@ -3,6 +3,7 @@
 [![Tests](https://github.com/philiprehberger/py-datetime-kit/actions/workflows/publish.yml/badge.svg)](https://github.com/philiprehberger/py-datetime-kit/actions/workflows/publish.yml)
 [![PyPI version](https://img.shields.io/pypi/v/philiprehberger-datetime-kit.svg)](https://pypi.org/project/philiprehberger-datetime-kit/)
 [![License](https://img.shields.io/github/license/philiprehberger/py-datetime-kit)](LICENSE)
+[![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ec6cb9)](https://github.com/sponsors/philiprehberger)
 
 Common datetime operations missing from the standard library.
 
