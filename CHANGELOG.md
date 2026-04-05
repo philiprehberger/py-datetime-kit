@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0 (2026-04-04)
+
+- Add `is_weekend` function to check if a date falls on Saturday or Sunday
+- Add `next_business_day` function to find the next weekday excluding holidays
+
 ## 0.1.2 (2026-03-31)
 
 - Standardize README to 3-badge format with emoji Support section

@@ -15,7 +15,7 @@ pip install philiprehberger-datetime-kit
 ## Usage
 
 ```python
-from philiprehberger_datetime_kit import business_days, date_range, relative
+from philiprehberger_datetime_kit import business_days, date_range, is_weekend, relative
 
 # Count business days between two dates
 count = business_days("2026-03-16", "2026-03-20")  # 4
@@ -47,6 +47,25 @@ tomorrow = relative(days=1)
 one_hour_ago = relative(hours=-1)
 ```
 
+### Weekend Check
+
+```python
+from philiprehberger_datetime_kit import is_weekend
+
+is_weekend(date(2026, 4, 4))  # True (Saturday)
+is_weekend(date(2026, 4, 6))  # False (Monday)
+```
+
+### Next Business Day
+
+```python
+from philiprehberger_datetime_kit import next_business_day
+from datetime import date
+
+next_business_day(date(2026, 4, 3))  # date(2026, 4, 6) — skips weekend
+next_business_day(date(2026, 4, 3), holidays=[date(2026, 4, 6)])  # date(2026, 4, 7)
+```
+
 ### Start and End of Period
 
 ```python
@@ -62,6 +81,8 @@ end = end_of("day")         # last moment of today
 |----------|-------------|
 | `business_days(start, end, holidays?)` | Count business days (Mon-Fri) between two dates |
 | `date_range(start, end, step?)` | Yield dates from start to end inclusive |
+| `is_weekend(dt?)` | Check if a date falls on a weekend |
+| `next_business_day(dt?, holidays?)` | Return the next business day (Mon-Fri, excluding holidays) |
 | `relative(days?, hours?, minutes?, seconds?)` | Return UTC now offset by the given delta |
 | `start_of(unit, dt?)` | Start of day/week/month/year |
 | `end_of(unit, dt?)` | End of day/week/month/year |
