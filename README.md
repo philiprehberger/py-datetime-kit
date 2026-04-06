@@ -75,10 +75,39 @@ start = start_of("month")   # first moment of current month
 end = end_of("day")         # last moment of today
 ```
 
+### Add Business Days
+
+```python
+from philiprehberger_datetime_kit import add_business_days
+
+result = add_business_days("2026-04-06", 5)  # skips weekends
+result = add_business_days("2026-04-06", 3, holidays=["2026-04-07"])
+```
+
+### Human-Readable Time Ago
+
+```python
+from philiprehberger_datetime_kit import time_ago
+from datetime import datetime, timezone
+
+past = datetime(2026, 4, 6, 10, 0, 0, tzinfo=timezone.utc)
+time_ago(past)  # "3 hours ago" (depends on current time)
+```
+
+### Format Duration
+
+```python
+from philiprehberger_datetime_kit import format_duration
+
+format_duration(3661)   # "1h 1m 1s"
+format_duration(45)     # "45s"
+format_duration(0.5)    # "500ms"
+```
+
 ## API
 
-| Function | Description |
-|----------|-------------|
+| Function / Class | Description |
+|------------------|-------------|
 | `business_days(start, end, holidays?)` | Count business days (Mon-Fri) between two dates |
 | `date_range(start, end, step?)` | Yield dates from start to end inclusive |
 | `is_weekend(dt?)` | Check if a date falls on a weekend |
@@ -86,6 +115,9 @@ end = end_of("day")         # last moment of today
 | `relative(days?, hours?, minutes?, seconds?)` | Return UTC now offset by the given delta |
 | `start_of(unit, dt?)` | Start of day/week/month/year |
 | `end_of(unit, dt?)` | End of day/week/month/year |
+| `add_business_days(start, days, holidays?)` | Add N business days to a date, skipping weekends and holidays |
+| `time_ago(dt?, now?)` | Human-readable relative time string ("3 hours ago", "just now") |
+| `format_duration(seconds)` | Format seconds as compact string ("2h 30m", "45s") |
 
 ## Development
 

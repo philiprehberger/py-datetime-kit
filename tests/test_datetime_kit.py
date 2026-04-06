@@ -1,13 +1,16 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from philiprehberger_datetime_kit import (
+    add_business_days,
     business_days,
     date_range,
     end_of,
+    format_duration,
     is_weekend,
     next_business_day,
     relative,
     start_of,
+    time_ago,
 )
 
 UTC = timezone.utc
@@ -130,3 +133,76 @@ def test_next_business_day_with_datetime():
     dt = datetime(2026, 4, 3, 15, 30, 0, tzinfo=UTC)  # Friday
     result = next_business_day(dt)
     assert result == date(2026, 4, 6)
+
+
+def test_add_business_days_forward():
+    result = add_business_days("2026-04-06", 3)  # Monday
+    assert result == date(2026, 4, 9)  # Thursday
+
+
+def test_add_business_days_over_weekend():
+    result = add_business_days("2026-04-09", 2)  # Thursday
+    assert result == date(2026, 4, 13)  # Monday
+
+
+def test_add_business_days_with_holidays():
+    result = add_business_days("2026-04-06", 3, holidays=["2026-04-07"])
+    assert result == date(2026, 4, 10)  # skips Tuesday holiday
+
+
+def test_add_business_days_negative():
+    result = add_business_days("2026-04-09", -2)  # Thursday
+    assert result == date(2026, 4, 7)  # Tuesday
+
+
+def test_time_ago_just_now():
+    now = datetime(2026, 4, 6, 12, 0, 0, tzinfo=timezone.utc)
+    assert time_ago(now, now=now) == "just now"
+
+
+def test_time_ago_minutes():
+    now = datetime(2026, 4, 6, 12, 0, 0, tzinfo=timezone.utc)
+    dt = now - timedelta(minutes=5)
+    assert time_ago(dt, now=now) == "5 minutes ago"
+
+
+def test_time_ago_hours():
+    now = datetime(2026, 4, 6, 12, 0, 0, tzinfo=timezone.utc)
+    dt = now - timedelta(hours=3)
+    assert time_ago(dt, now=now) == "3 hours ago"
+
+
+def test_time_ago_days():
+    now = datetime(2026, 4, 6, 12, 0, 0, tzinfo=timezone.utc)
+    dt = now - timedelta(days=7)
+    assert time_ago(dt, now=now) == "7 days ago"
+
+
+def test_time_ago_singular():
+    now = datetime(2026, 4, 6, 12, 0, 0, tzinfo=timezone.utc)
+    dt = now - timedelta(hours=1)
+    assert time_ago(dt, now=now) == "1 hour ago"
+
+
+def test_format_duration_seconds():
+    assert format_duration(45) == "45s"
+
+
+def test_format_duration_minutes_seconds():
+    assert format_duration(150) == "2m 30s"
+
+
+def test_format_duration_hours():
+    assert format_duration(3661) == "1h 1m 1s"
+
+
+def test_format_duration_days():
+    assert format_duration(90061) == "1d 1h 1m 1s"
+
+
+def test_format_duration_milliseconds():
+    assert format_duration(0.5) == "500ms"
+
+
+def test_format_duration_zero():
+    assert format_duration(0) == "0ms"

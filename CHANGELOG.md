@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 (2026-04-06)
+
+- Add `add_business_days(start, days, holidays)` to add N business days to a date
+- Add `time_ago(dt, now)` for human-readable relative time strings
+- Add `format_duration(seconds)` to format durations as compact strings
+
 ## 0.2.0 (2026-04-04)
 
 - Add `is_weekend` function to check if a date falls on Saturday or Sunday

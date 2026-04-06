@@ -14,6 +14,9 @@ __all__ = [
     "next_business_day",
     "relative",
     "start_of",
+    "add_business_days",
+    "format_duration",
+    "time_ago",
 ]
 
 _UTC = timezone.utc
@@ -221,3 +224,109 @@ def end_of(unit: str, dt: datetime | None = None) -> datetime:
         case _:
             msg = f"Unsupported unit: {unit!r}. Use 'day', 'week', 'month', or 'year'."
             raise ValueError(msg)
+
+
+def add_business_days(
+    start: str | date,
+    days: int,
+    holidays: list[str | date] | None = None,
+) -> date:
+    """Add a number of business days to a date.
+
+    Skips weekends (Sat/Sun) and optional holidays.  Negative values
+    subtract business days.
+
+    Args:
+        start: Start date as ISO string or date object.
+        days: Number of business days to add (can be negative).
+        holidays: Optional list of dates to skip.
+
+    Returns:
+        The resulting date after adding the business days.
+    """
+    current = _to_date(start)
+    holiday_set: set[date] = set()
+    if holidays:
+        holiday_set = {_to_date(h) for h in holidays}
+
+    step = 1 if days >= 0 else -1
+    remaining = abs(days)
+
+    while remaining > 0:
+        current += timedelta(days=step)
+        if current.weekday() < 5 and current not in holiday_set:
+            remaining -= 1
+
+    return current
+
+
+def time_ago(dt: datetime | None = None, now: datetime | None = None) -> str:
+    """Return a human-readable relative time string.
+
+    Args:
+        dt: The past datetime to describe. Defaults to now (returns "just now").
+        now: Reference time. Defaults to current UTC time.
+
+    Returns:
+        A string like "just now", "3 minutes ago", "2 hours ago", "5 days ago".
+    """
+    if now is None:
+        now = datetime.now(_UTC)
+    if dt is None:
+        return "just now"
+
+    diff = now - dt
+    seconds = int(diff.total_seconds())
+
+    if seconds < 0:
+        return "just now"
+    if seconds < 60:
+        return "just now"
+    minutes = seconds // 60
+    if minutes < 60:
+        return f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+    hours = minutes // 60
+    if hours < 24:
+        return f"{hours} hour{'s' if hours != 1 else ''} ago"
+    days = hours // 24
+    if days < 30:
+        return f"{days} day{'s' if days != 1 else ''} ago"
+    months = days // 30
+    if months < 12:
+        return f"{months} month{'s' if months != 1 else ''} ago"
+    years = months // 12
+    return f"{years} year{'s' if years != 1 else ''} ago"
+
+
+def format_duration(seconds: float) -> str:
+    """Format a duration in seconds as a human-readable string.
+
+    Args:
+        seconds: Duration in seconds.
+
+    Returns:
+        A compact string like "2h 30m", "45s", "1d 3h".
+    """
+    if seconds < 0:
+        return f"-{format_duration(-seconds)}"
+    if seconds < 1:
+        ms = int(seconds * 1000)
+        return f"{ms}ms"
+
+    total = int(seconds)
+    parts: list[str] = []
+
+    days = total // 86400
+    if days:
+        parts.append(f"{days}d")
+    hours = (total % 86400) // 3600
+    if hours:
+        parts.append(f"{hours}h")
+    mins = (total % 3600) // 60
+    if mins:
+        parts.append(f"{mins}m")
+    secs = total % 60
+    if secs:
+        parts.append(f"{secs}s")
+
+    return " ".join(parts) if parts else "0s"
